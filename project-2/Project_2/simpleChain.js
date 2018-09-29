@@ -75,7 +75,7 @@ class Blockchain{
             // Adding block object to chain
             addDataToLevelDB(newBlock)
             .then(function(result)  {
-              resolve(result);
+              resolve("addBlock resolved", result);
             });              
           }
           else {

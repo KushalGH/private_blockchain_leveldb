@@ -10,7 +10,11 @@ const db = level(chainDB);
 function addLevelDBData(key,value) {  
   return new Promise(function(resolve, reject) {
     db.put(key, value, function(err) {
-      if (err) return reject(err) 
+      if (err) {
+        console.log("error occured while creating the addLevelDBData", err);
+        return reject(err)
+      }
+        console.log("success addLevelDBData", JSON.stringify(value));
         else return resolve()
       });
   })
@@ -23,8 +27,13 @@ function getLevelDBData(key) {
 
   return new Promise(function(resolve, reject) {
     db.get(key, function(err, value) {
-      if (err) return reject(err);
-      else return resolve(JSON.parse(value));
+      if (err) {
+       return reject(err); 
+      }      
+      else {
+        console.log(JSON.stringify(value));
+        return resolve(JSON.stringify(value)) 
+      };
     })
   })
 
@@ -45,6 +54,7 @@ function addDataToLevelDB(value) {
           })
     .on('close', function() {
       console.log('Block #' + i);
+      console.log('Block #' + i + " value # " + JSON.stringify(value));   
       addLevelDBData(i, value).then(function(data) {
         resolve(data);
       });
@@ -55,17 +65,20 @@ function addDataToLevelDB(value) {
 function getCompleteBlocksDBData() {
   return new Promise(function(resolve, reject) {
     let datArray = [];
-     let i = 0;
+    let i = 0;
     db.createReadStream()
     .on("data", function(data) {
-       i++;
-      datArray.push(data);
-    })
+     i++;
+     datArray.push(data);
+   })
     .on("error", function(error) {
       reject(error);
     })
     .on('close', function() {
-      console.log("getCompleteBlocksDBData resolved", datArray);
+      for(var i = 0; i < datArray.length; i++) {
+        console.log("getCompleteBlocksDBData resolved", JSON.stringify(datArray[i]));
+      }
+      
       resolve(datArray);
     });
   })
@@ -75,6 +88,14 @@ function deleteAllData() {
   getCompleteBlocksDBData().then(function(data) {
     for(var i = 0; i < data.length; i++) {
       db.del(i);
+    }
+  })
+}
+
+function printAllData() {
+  getCompleteBlocksDBData().then(function(data) {
+    for(var i = 0; i < data.length; i++) {
+      console.log("print parse: ", JSON.stringify(data[i]));
     }
   })
 }
