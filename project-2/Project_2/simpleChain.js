@@ -227,7 +227,7 @@ class Blockchain{
   }
 }
 
-/*
+
 (function theLoop (i) {
       let myBlockChain = new Blockchain();
     setTimeout(function () {
@@ -240,4 +240,4 @@ class Blockchain{
         });
     }, 10000);
   })(0);
-  */
+  

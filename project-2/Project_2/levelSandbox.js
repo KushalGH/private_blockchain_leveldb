@@ -69,7 +69,7 @@ function getCompleteBlocksDBData() {
     
     db.createReadStream()
     .on("data", function(data) {
-      console.log("data:", data)
+      //console.log("data:", data)
      datArray.push(data);
    })
     .on("error", function(error) {
@@ -93,7 +93,7 @@ function getCompleteBlocksDBData() {
 
       console.log("datArray", datArray);
       
-      resolve(datArray);
+      resolve(datArray.sort((a, b) => a.key - b.key));
     });
   })
 }
