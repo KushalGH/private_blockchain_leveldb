@@ -11,11 +11,12 @@ function addLevelDBData(key,value) {
   return new Promise(function(resolve, reject) {
     db.put(key, value, function(err) {
       if (err) {
-        console.log("error occured while creating the addLevelDBData", err);
+        err = "error occured while creating the addLevelDBData", err;        
         return reject(err)
+      } else {
+        console.log("addLevelDBData success:", JSON.stringify(value));
+         return resolve()
       }
-        console.log("success addLevelDBData", JSON.stringify(value));
-        else return resolve()
       });
   })
 }
@@ -31,7 +32,7 @@ function getLevelDBData(key) {
        return reject(err); 
       }      
       else {
-        console.log(JSON.stringify(value));
+        console.log("getLevelDBData success: ", JSON.stringify(value));
         return resolve(JSON.stringify(value)) 
       };
     })
@@ -53,8 +54,7 @@ function addDataToLevelDB(value) {
             //return console.log('Unable to read data stream!', err)
           })
     .on('close', function() {
-      console.log('Block #' + i);
-      console.log('Block #' + i + " value # " + JSON.stringify(value));   
+      console.log('addDataToLevelDB (just before addLevelDBData) Block #' + i + " value # " + JSON.stringify(value));   
       addLevelDBData(i, value).then(function(data) {
         resolve(data);
       });
@@ -65,19 +65,32 @@ function addDataToLevelDB(value) {
 function getCompleteBlocksDBData() {
   return new Promise(function(resolve, reject) {
     let datArray = [];
-    let i = 0;
+    
     db.createReadStream()
     .on("data", function(data) {
-     i++;
+      console.log("data:", data)
      datArray.push(data);
    })
     .on("error", function(error) {
       reject(error);
     })
     .on('close', function() {
+      /*
       for(var i = 0; i < datArray.length; i++) {
-        console.log("getCompleteBlocksDBData resolved", JSON.stringify(datArray[i]));
+        
+        for(var property in datArray[i]) {
+           //alert(property + "=" + obj[property]);
+           console.log("getCompleteBlocksDBData resolved");
+           console.log(property + " = " + obj[property]);
+        }
+        
+        
       }
+      */
+      console.log("getCompleteBlocksDBData resolved");
+      console.log("datArray length", datArray.length);
+
+      console.log("datArray", datArray);
       
       resolve(datArray);
     });

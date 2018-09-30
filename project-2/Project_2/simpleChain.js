@@ -22,7 +22,7 @@ class Block {
    this.height = 0,
    this.body = data,
    this.time = 0,
-   this.previousBlockHash = ""
+   this.previousBlockHash = "0x"
  }
 }
 
@@ -34,6 +34,7 @@ class Blockchain{
 
 
   constructor() {
+    
     var self = this;
     this.getBlockHeight()
     .then(function(data) {
@@ -49,17 +50,19 @@ class Blockchain{
     })
   }
 
-  
+  comments() {
+    return "||" + "=".repeat(20) + " {0} " + "=".repeat(20) + "||";
+  }
 
   // Add new block
   addBlock(newBlock){
 
-
+    var self = this;
     return new Promise(function(resolve, reject) {
       console.log(newBlock);
       if(typeof newBlock === 'object') { 
         getCompleteBlocksDBData().then(function(data) {
-          console.log(data);
+          console.log("addBlock entered: ", data);
             // Block height
             if(typeof newBlock === 'object') {
               newBlock.height = data.length;
@@ -67,13 +70,18 @@ class Blockchain{
             newBlock.time = new Date().getTime().toString().slice(0,-3);
             // previous block hash
             if(data.length > 0){
-              newBlock.previousBlockHash = data[data.length-1].hash;
+              newBlock.previousBlockHash = JSON.parse(data[data.length-1].value).hash;
+            }
+            else {
+              var welcome_message = "Welcome to your private Blockchain";
+              console.log(self.comments().replace("{0}", "Welcome to your private Blockchain"));
+              console.log(self.comments().replace("{0}", "=".repeat(welcome_message.length)));         
             }
             // Block hash with SHA256 using newBlock and converting to a string
             newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-            console.log("ks", JSON.stringify(newBlock));
+            console.log("IMPORTANT: newBlock structure", JSON.stringify(newBlock));
             // Adding block object to chain
-            addDataToLevelDB(newBlock)
+            addDataToLevelDB(JSON.stringify(newBlock))
             .then(function(result)  {
               resolve("addBlock resolved", result);
             });              
@@ -84,7 +92,7 @@ class Blockchain{
         })
       }
       else {
-        var error = "Please enter a Block try new Block(<<message>>)";
+        var error = "It is not a Block object. Please enter a Block. example: obj.addBlock(new Block('My First Block'))";
         console.log(error)
         reject(error);
       }
