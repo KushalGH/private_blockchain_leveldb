@@ -1,4 +1,8 @@
-/* ===== SHA256 with Crypto-js ===============================
+/* =============== SHA256 with Crypto-js ====================|
+|  Learn more: Crypto-js: https://github.com/brix/crypto-js  |
+|  =========================================================*/
+
+/* =============== using levelSandbox.js ====================|
 |  Learn more: Crypto-js: https://github.com/brix/crypto-js  |
 |  =========================================================*/
 
@@ -12,10 +16,9 @@ const {
 const SHA256 = require('crypto-js/sha256');
 
 
-/* ===== Block Class ==============================
-|  Class with a constructor for block          |
+/* ================ Block Class ===================|
+|  Class with a constructor for block              |
 |  ===============================================*/
-
 class Block {
   constructor(data){
    this.hash = "",
@@ -26,13 +29,15 @@ class Block {
  }
 }
 
-/* ===== Blockchain Class ==========================
-|  Class with a constructor for new blockchain    |
+/* =============== Blockchain Class ================|
+|  Class with a constructor for new blockchain      |
 |  ================================================*/
-
 class Blockchain{
 
 
+  /* ============================== constructor =================================|
+  |  - Constructor, If there is no Block, then It adds the Genesis Block         | 
+  |  ===========================================================================*/
   constructor() {
 
     var self = this;
@@ -50,11 +55,19 @@ class Blockchain{
     })
   }
 
+
+  /* =============================== comments ===================================|
+  |  - A Method that can be used as an utility while showing the console.log()   | 
+  |  ===========================================================================*/
   comments() {
     return "||" + "=".repeat(20) + " {0} " + "=".repeat(20) + "||";
   }
 
-  // Add new block
+
+
+  /* =============================== addBlock ===================================|
+  |  - Add block to the Blockchain                                               | 
+  |  ===========================================================================*/
   addBlock(newBlock){
 
     var self = this;
@@ -73,9 +86,12 @@ class Blockchain{
               newBlock.previousBlockHash = JSON.parse(data[data.length-1].value).hash;
             }
             else {
-              var welcome_message = "Welcome to your private Blockchain";
-              console.log(self.comments().replace("{0}", "Welcome to your private Blockchain"));
-              console.log(self.comments().replace("{0}", "=".repeat(welcome_message.length)));         
+              /*var welcome_message = "Welcome to your private Blockchain";
+              var genesis_message = "your genesis Block is created. EJY"
+              console.log(self.comments().replace("{0}", "=".repeat(welcome_message.length)));
+              console.log(self.comments().replace("{0}", welcome_message));
+              console.log(self.comments().replace("{0}", genesis_message));
+              console.log(self.comments().replace("{0}", "=".repeat(welcome_message.length))); */
             }
             // Block hash with SHA256 using newBlock and converting to a string
             newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
@@ -83,47 +99,100 @@ class Blockchain{
             // Adding block object to chain
             addDataToLevelDB(JSON.stringify(newBlock))
             .then(function(result)  {
-              resolve("addBlock resolved", result);
+              if(JSON.parse(result).height == 0) {
+                var welcome_message = "Welcome to your private Blockchain";
+                var genesis_message = "your genesis Block is created. EJY";
+                console.log(self.comments().replace("{0}", "=".repeat(welcome_message.length)));
+                console.log(self.comments().replace("{0}", welcome_message));
+                console.log(self.comments().replace("{0}", genesis_message));
+                console.log(self.comments().replace("{0}", "=".repeat(welcome_message.length)));
+              }
+              else {
+                var welcome_message = "Your Block is Successfully Added";
+                console.log(self.comments().replace("{0}", "=".repeat(welcome_message.length)));
+                console.log(self.comments().replace("{0}", welcome_message));
+                console.log(self.comments().replace("{0}", "=".repeat(welcome_message.length)));
+              }
+              console.log("addBlock resolved");
+              return resolve(result);
             });              
           }
           else {
-            reject();
+            return reject();
           }        
         })
       }
       else {
         var error = "It is not a Block object. Please enter a Block. example: obj.addBlock(new Block('My First Block'))";
         console.log(error)
-        reject(error);
+        return reject(error);
       }
 
     });
-
-
   }
 
-  // Get block height
-  getBlockHeight()
-  {
-    return getCompleteBlocksDBData().then(function(data) {
-      console.log(data);
-      return data ? data.length : -1;
-    })
-      //return this.chain.length-1;
+
+    /* ============================ getBlockHeight ================================|
+    |  - Get the block height of the Blockchain                                    | 
+    |  ===========================================================================*/
+    getBlockHeight()
+    {
+      var self = this;
+      return getCompleteBlocksDBData().then(function(data) {
+       var blockchain_height = "Your Blockchain height is: " + (data ? data.length : -1);
+       console.log(self.comments().replace("{0}", "=".repeat(blockchain_height.length)));
+       console.log(self.comments().replace("{0}", blockchain_height));
+       console.log(self.comments().replace("{0}", "=".repeat(blockchain_height.length)));
+
+        return data ? data.length : -1;
+      })
     }
 
-    // get block
+
+    /* ============================ printBlockChain ================================|
+    |  - Prints the BlockChain                                                      | 
+    |  ============================================================================*/
+    printBlockChain()
+    {
+      var self = this;
+      return getCompleteBlocksDBData().then(function(data) {
+        var printBlockChain_msg = "This is your Blockchain"; 
+       console.log(self.comments().replace("{0}", "=".repeat(printBlockChain_msg.length)));
+       console.log(self.comments().replace("{0}", printBlockChain_msg));
+       console.log("       ");
+       for(var i = 0; i < data.length; i++) {
+        console.log("#Block Number: ", i);
+        console.log(data[i]);
+        console.log("       ");
+       }
+       console.log(self.comments().replace("{0}", "=".repeat(printBlockChain_msg.length)));
+       console.log("       ");
+       return (data);
+      })
+    }    
+
+
+    /* ============================ validateBlock =================================|
+    |  - Validate the block, if it's created correctly                             | 
+    |  ===========================================================================*/ 
     getBlock(blockHeight){
+      var self = this;
       return getLevelDBData(blockHeight).then(function(data) {
+       var getBlock_msg = "Your Block is: " + data;
+       console.log(self.comments().replace("{0}", "=".repeat(10)));
+       console.log(self.comments().replace("{0}", getBlock_msg));
+       console.log(self.comments().replace("{0}", "=".repeat(10)));
+
         return data;
       })
-      // return object as a single string
-      //return JSON.parse(JSON.stringify(this.chain[blockHeight]));
     }
 
-    // validate block
-    validateBlock(blockHeight){
 
+    /* ============================ validateBlock =================================|
+    |  - Validate the block, if it's created correctly                             | 
+    |  ===========================================================================*/
+    validateBlock(blockHeight){
+      var self = this;
       return new Promise(function(resolve, reject) {
         getCompleteBlocksDBData().then(function(data) {
             // get block object
@@ -137,7 +206,11 @@ class Blockchain{
             // Compare
             console.log("validBlockHash : ", validBlockHash);
             console.log("blockHash      : ", blockHash);
-            if (blockHash===validBlockHash) {
+            if (blockHash === validBlockHash) {
+              var valid_message = "Your Block is Valid";
+              console.log(self.comments().replace("{0}", "=".repeat(valid_message.length)));
+              console.log(self.comments().replace("{0}", valid_message));
+              console.log(self.comments().replace("{0}", "=".repeat(valid_message.length)));                 
              return resolve(true);
            } else {
             console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
@@ -148,6 +221,10 @@ class Blockchain{
     }
 
 
+    /* ======================= validateBlockConnection ============================|
+    |  - Validate the connection of one particular block in chain                  |
+    |  - It first validate the Block, the check the connection                     |    
+    |  ===========================================================================*/
     validateBlockConnection(height) {
       var self = this;
       return new Promise(function(resolve, reject) {
@@ -180,6 +257,10 @@ class Blockchain{
                   }
                   else {
                     console.log("validateBlockConnection valid");
+                    var valid_conn = "Your Block has a Valid connection for " + currentBlockPrevHash;
+                    console.log(self.comments().replace("{0}", "=".repeat(valid_conn.length)));
+                    console.log(self.comments().replace("{0}", valid_conn));
+                    console.log(self.comments().replace("{0}", "=".repeat(valid_conn.length)));                       
                     return resolve(true);
                   }
                 })                
@@ -194,7 +275,11 @@ class Blockchain{
       })
     }
 
-   // Validate blockchain
+
+
+    /* ============================= validateChain ================================|
+    |  - Validate the complete Blockchain using this method                        |
+    |  ===========================================================================*/
    validateChain(){
     var self = this;
     return(new Promise(function(resolve, reject) {
@@ -209,8 +294,12 @@ class Blockchain{
             Promise.all(promiseArray).then(function(result) {
               console.log(result);
               if (data.length == promiseArray.length) {
-                console.log('No errors detected');
-                return resolve(true);
+
+              var valid_chain = "WOWWW!! You did it. Your Blockchain is valid";
+              console.log(self.comments().replace("{0}", "=".repeat(valid_chain.length)));              
+              console.log(self.comments().replace("{0}", valid_chain));
+              console.log(self.comments().replace("{0}", "=".repeat(valid_chain.length)));
+              return resolve(true);
 
               } else {
                 console.log('Block errors = ' + errorLog.length);
@@ -228,6 +317,10 @@ class Blockchain{
 }
 
 
+/* ================================ Testing ===================================|
+|  - Self-invoking function to add blocks to chain                             |
+|  ===========================================================================*/
+/*
 (function theLoop (i) {
       let myBlockChain = new Blockchain();
     setTimeout(function () {
@@ -240,4 +333,5 @@ class Blockchain{
         });
     }, 10000);
   })(0);
+  */
   

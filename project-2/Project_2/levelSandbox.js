@@ -1,12 +1,16 @@
-/* ===== Persist data with LevelDB ===================================
-|  Learn more: level: https://github.com/Level/level     |
-|  =============================================================*/
+/* ================== Persist data with LevelDB ======================|
+|  Learn more: level: https://github.com/Level/level                  |
+|  ==================================================================*/
 
 const level = require('level');
 const chainDB = './chaindata';
 const db = level(chainDB);
 
-// Add data to levelDB with key/value pair
+
+
+/* ============================ addLevelDBData ================================|
+|  - Add data to levelDB with key/value pair                                   | 
+|  ===========================================================================*/
 function addLevelDBData(key,value) {  
   return new Promise(function(resolve, reject) {
     db.put(key, value, function(err) {
@@ -15,7 +19,7 @@ function addLevelDBData(key,value) {
         return reject(err)
       } else {
         console.log("addLevelDBData success:", JSON.stringify(value));
-         return resolve()
+         return resolve(value);
       }
       });
   })
@@ -23,7 +27,9 @@ function addLevelDBData(key,value) {
 
 
 
-// Get data from levelDB with key
+/* ============================ getLevelDBData ================================|
+|  - Get data from levelDB with key                                            | 
+|  ===========================================================================*/
 function getLevelDBData(key) {
 
   return new Promise(function(resolve, reject) {
@@ -38,10 +44,11 @@ function getLevelDBData(key) {
       };
     })
   })
-
 }
 
-// Add data to levelDB with value
+/* =========================== addDataToLevelDB ===============================|
+|  - Add data to levelDB with value                                            | 
+|  ===========================================================================*/
 function addDataToLevelDB(value) {
 
   return new Promise(function(resolve, reject) {
@@ -51,18 +58,22 @@ function addDataToLevelDB(value) {
       i++;
     })
     .on('error', function(err) {
-      return reject(err);
-            //return console.log('Unable to read data stream!', err)
+      return reject(err);            
           })
     .on('close', function() {
       console.log('addDataToLevelDB (just before addLevelDBData) Block #' + i + " value # " + JSON.stringify(value));   
-      addLevelDBData(i, value).then(function(data) {
-        resolve(data);
+      addLevelDBData(i, value).then(function(data) {        
+        return resolve(data);
       });
     });    
   });
 }
 
+
+
+/* ======================== getCompleteBlocksDBData ===========================|
+|  - Get all the BlocksData                                                    | 
+|  ===========================================================================*/
 function getCompleteBlocksDBData() {
   return new Promise(function(resolve, reject) {
     let datArray = [];
@@ -73,31 +84,21 @@ function getCompleteBlocksDBData() {
      datArray.push(data);
    })
     .on("error", function(error) {
-      reject(error);
+      return reject(error);
     })
     .on('close', function() {
-      /*
-      for(var i = 0; i < datArray.length; i++) {
-        
-        for(var property in datArray[i]) {
-           //alert(property + "=" + obj[property]);
-           console.log("getCompleteBlocksDBData resolved");
-           console.log(property + " = " + obj[property]);
-        }
-        
-        
-      }
-      */
-      console.log("getCompleteBlocksDBData resolved");
-      console.log("datArray length", datArray.length);
 
-      console.log("datArray", datArray);
-      
-      resolve(datArray.sort((a, b) => a.key - b.key));
+      console.log("getCompleteBlocksDBData resolved");
+      console.log("BlockChain Length", datArray.length);
+      return resolve(datArray.sort((a, b) => a.key - b.key));
     });
   })
 }
 
+/* ========================== ALERT: deleteAllData ============================|
+|  - Don't have this method on production. It's just for local to delete       |
+|  - and validates the blockchain                                              | 
+|  ===========================================================================*/
 function deleteAllData() {
   getCompleteBlocksDBData().then(function(data) {
     for(var i = 0; i < data.length; i++) {
@@ -106,6 +107,10 @@ function deleteAllData() {
   })
 }
 
+
+/* ============================== printAllData ================================|
+|  - Print all the Blocks in Blockchain                                        |
+|  ===========================================================================*/
 function printAllData() {
   getCompleteBlocksDBData().then(function(data) {
     for(var i = 0; i < data.length; i++) {
@@ -114,26 +119,10 @@ function printAllData() {
   })
 }
 
-/* ===== Testing ==============================================================|
-|  - Self-invoking function to add blocks to chain                             |
-|  - Learn more:                                                               |
-|   https://scottiestech.info/2014/07/01/javascript-fun-looping-with-a-delay/  |
-|                                                                              |
-|  * 100 Milliseconds loop = 36,000 blocks per hour                            |
-|     (13.89 hours for 500,000 blocks)                                         |
-|    Bitcoin blockchain adds 8640 blocks per day                               |
-|     ( new block every 10 minutes )                                           |
+
+/* ============================= Module Exports ===============================|
+|  - Exports the functions                                                     |
 |  ===========================================================================*/
-
-/*
-(function theLoop (i) {
-  setTimeout(function () {
-    addDataToLevelDB('Testing data');
-    if (--i) theLoop(i);
-  }, 100);
-})(10);
-*/
-
 module.exports = {
   addDataToLevelDB,
   addLevelDBData,
