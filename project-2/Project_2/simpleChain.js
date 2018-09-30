@@ -34,7 +34,7 @@ class Blockchain{
 
 
   constructor() {
-    
+
     var self = this;
     this.getBlockHeight()
     .then(function(data) {
@@ -126,7 +126,7 @@ class Blockchain{
       return new Promise(function(resolve, reject) {
         getCompleteBlocksDBData().then(function(data) {
             // get block object
-            let block = data[blockHeight]; 
+            let block = JSON.parse(data[blockHeight].value); 
             // get block hash
             let blockHash = block.hash;
             // remove block hash to test block integrity
@@ -134,11 +134,13 @@ class Blockchain{
             // generate block hash
             let validBlockHash = SHA256(JSON.stringify(block)).toString();
             // Compare
+            console.log("validBlockHash", validBlockHash);
+            console.log("blockHash", blockHash);
             if (blockHash===validBlockHash) {
-             return true;
+             return resolve(true);
            } else {
             console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
-            return false;
+            return reject(false);
           }
         })
       })
@@ -146,26 +148,34 @@ class Blockchain{
 
 
     validateBlockConnection(height) {
+      var self = this;
       return new Promise(function(resolve, reject) {
-        this.validateBlock(height).then(function(result) {
+        self.validateBlock(height).then(function(result) {
           if(!result) {
-            console.log("validateBlockConnection no valid");
-            resolve(1);
+            console.log("validateBlockConnection not valid");
+            return reject(false);
           }
           else {
-            this.getBlock(height).then(function(data) {
-              let blockHash = data.hash;
-              this.getBlock(height + 1).then(function(nextdata) {
-                let previousHash = nextdata.previousBlockHash;
-                if(blockHash != previousHash) {
-                  console.log("validateBlockConnection no valid");
-                  resolve(1);
-                }
-                else {
-                  console.log("validateBlockConnection valid");
-                  resolve(0);
-                }
-              })
+            self.getBlock(height).then(function(data) {
+              console.log("current block", data);
+              let blockHash = JSON.parse(data).hash;
+              console.log("current blockHash", blockHash);
+              if(height > 0 ) {
+                self.getBlock(height - 1).then(function(prevdata) {
+
+                  console.log("previous block", prevdata);
+
+                  let previousHash = JSON.parse(prevdata).previousBlockHash;
+                  if(previousHash != blockHash) {
+                    console.log("validateBlockConnection no valid");
+                    return reject(false);
+                  }
+                  else {
+                    console.log("validateBlockConnection valid");
+                    return resolve(true);
+                  }
+                })                
+              }
             })
           }
         })
@@ -174,23 +184,30 @@ class Blockchain{
 
    // Validate blockchain
    validateChain(){
-
+    var self = this;
     return(new Promise(function(resolve, reject) {
       getCompleteBlocksDBData().then(function(data) {
         let errorLog = [];
         var promiseArray = [];
         for (var i = 0; i < data.length-1; i++) {
               // validate block
-              promiseArray.push(this.validateBlockConnection(i))
+              promiseArray.push(self.validateBlockConnection(i))
             }
 
             Promise.all(promiseArray).then(function(data) {
-              if (data.length>0) {
+              if (data.length == promiseArray.length) {
+                console.log('No errors detected');
+                return resolve(true);
+
+              } else {
                 console.log('Block errors = ' + errorLog.length);
                 console.log('Blocks: '+errorLog);
-              } else {
-                console.log('No errors detected');
+                return resolve(false);
               }
+            })
+            .catch(function(err) {
+              console.log("Your Blockchain is not valid");
+              return resolve(false);
             })
           })
     }));
