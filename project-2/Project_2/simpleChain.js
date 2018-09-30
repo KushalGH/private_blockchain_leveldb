@@ -38,7 +38,7 @@ class Blockchain{
     var self = this;
     this.getBlockHeight()
     .then(function(data) {
-      if(data.length == 0) {            
+      if(data == 0) {            
         self.addBlock(new Block("First block in the chain - Genesis block"))
         .then(function() {
 
@@ -103,10 +103,11 @@ class Blockchain{
   }
 
   // Get block height
-  getBlockHeight(){
+  getBlockHeight()
+  {
     return getCompleteBlocksDBData().then(function(data) {
       console.log(data);
-      return data;
+      return data ? data.length : -1;
     })
       //return this.chain.length-1;
     }
@@ -171,8 +172,8 @@ class Blockchain{
                   console.log("compare var 2: currentBlockPrevHash: ", currentBlockPrevHash);
 
                   if(prevBlockCurrentHash == undefined || prevBlockCurrentHash == null ||
-                     currentBlockPrevHash == undefined || currentBlockPrevHash == null ||
-                     prevBlockCurrentHash != currentBlockPrevHash) 
+                   currentBlockPrevHash == undefined || currentBlockPrevHash == null ||
+                   prevBlockCurrentHash != currentBlockPrevHash) 
                   {
                     console.log("validateBlockConnection no valid");
                     return reject(false);
