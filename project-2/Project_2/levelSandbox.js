@@ -33,7 +33,8 @@ function getLevelDBData(key) {
       }      
       else {
         console.log("getLevelDBData success: ", JSON.stringify(value));
-        return resolve(JSON.stringify(value)) 
+        //return resolve(JSON.stringify(value))
+        return resolve(value) 
       };
     })
   })

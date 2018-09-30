@@ -114,7 +114,7 @@ class Blockchain{
     // get block
     getBlock(blockHeight){
       return getLevelDBData(blockHeight).then(function(data) {
-        return JSON.parse(JSON.stringify(data));
+        return data;
       })
       // return object as a single string
       //return JSON.parse(JSON.stringify(this.chain[blockHeight]));
@@ -134,8 +134,8 @@ class Blockchain{
             // generate block hash
             let validBlockHash = SHA256(JSON.stringify(block)).toString();
             // Compare
-            console.log("validBlockHash", validBlockHash);
-            console.log("blockHash", blockHash);
+            console.log("validBlockHash : ", validBlockHash);
+            console.log("blockHash      : ", blockHash);
             if (blockHash===validBlockHash) {
              return resolve(true);
            } else {
@@ -152,21 +152,28 @@ class Blockchain{
       return new Promise(function(resolve, reject) {
         self.validateBlock(height).then(function(result) {
           if(!result) {
-            console.log("validateBlockConnection not valid");
+            console.error("validateBlockConnection not valid");
             return reject(false);
           }
           else {
             self.getBlock(height).then(function(data) {
               console.log("current block", data);
-              let blockHash = JSON.parse(data).hash;
-              console.log("current blockHash", blockHash);
+              var currentBlockPrevHash = (JSON.parse(data).previousBlockHash).toString();
+              console.log("current blockHash", currentBlockPrevHash);
               if(height > 0 ) {
                 self.getBlock(height - 1).then(function(prevdata) {
 
                   console.log("previous block", prevdata);
 
-                  let previousHash = JSON.parse(prevdata).previousBlockHash;
-                  if(previousHash != blockHash) {
+                  let prevBlockCurrentHash = (JSON.parse(prevdata).hash).toString();
+
+                  console.log("compare var 1: prevBlockCurrentHash: ", prevBlockCurrentHash);                  
+                  console.log("compare var 2: currentBlockPrevHash: ", currentBlockPrevHash);
+
+                  if(prevBlockCurrentHash == undefined || prevBlockCurrentHash == null ||
+                     currentBlockPrevHash == undefined || currentBlockPrevHash == null ||
+                     prevBlockCurrentHash != currentBlockPrevHash) 
+                  {
                     console.log("validateBlockConnection no valid");
                     return reject(false);
                   }
@@ -175,6 +182,10 @@ class Blockchain{
                     return resolve(true);
                   }
                 })                
+              }
+              else if(height == 0){
+                console.log("validateBlockConnection valid");
+                return resolve(true);
               }
             })
           }
@@ -189,12 +200,13 @@ class Blockchain{
       getCompleteBlocksDBData().then(function(data) {
         let errorLog = [];
         var promiseArray = [];
-        for (var i = 0; i < data.length-1; i++) {
+        for (var i = 0; i < data.length; i++) {
               // validate block
               promiseArray.push(self.validateBlockConnection(i))
             }
 
-            Promise.all(promiseArray).then(function(data) {
+            Promise.all(promiseArray).then(function(result) {
+              console.log(result);
               if (data.length == promiseArray.length) {
                 console.log('No errors detected');
                 return resolve(true);
