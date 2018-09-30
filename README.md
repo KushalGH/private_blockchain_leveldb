@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 Installing Node and NPM is pretty straightforward using the installer package available from the (Node.js® web site)[https://nodejs.org/en/].
 
-### Configuring your project
+### Configuring your Project
 
 - Use NPM to initialize your project and create package.json to store project dependencies.
 ```
@@ -31,26 +31,86 @@ npm install level --save
 
 To test code:
 1: Open a command prompt or shell terminal after install node.js.
+
 2: Enter a node session, also known as REPL (Read-Evaluate-Print-Loop).
 ```
 node
 ```
 3: Copy and paste your code into your node session
-4: Instantiate blockchain with blockchain variable
+
+4: Instantiate blockchain with blockchain variable. Genesis Block will be created, as we are doing for the first time
 ```
 let blockchain = new Blockchain();
 ```
+
+![picture](projectimages/001_creategenesisblock.png)
+
+
 5: Generate 10 blocks using a for loop
 ```
 for (var i = 0; i <= 10; i++) {
   blockchain.addBlock(new Block("test data "+i));
 }
 ```
-6: Validate blockchain
+
+Note: For testing, I have added 4 Blocks. 
+```
+blockchain.addBlock(new Block("First Custom Block"));
+```
+
+![picture](projectimages/002_addnewblock.png)
+
+
+6: Check the Block height
+```
+blockchain.getBlockHeight();
+```
+
+![picture](projectimages/003_blockheight.png)
+
+
+7: Get Details of particular Block
+```
+blockchain.getBlock("2")
+```
+
+![picture](projectimages/004_getparticularblock.png)
+
+
+8: Validate Block
+```
+blockchain.validateBlock("2")
+```
+
+![picture](projectimages/005_validateblock.png)
+
+
+9: Validate BlockConnection
+```
+blockchain.validateBlockConnection("2")
+```
+
+![picture](projectimages/006_validblockconnection.png)
+
+
+
+10: Validate Blockchain
 ```
 blockchain.validateChain();
 ```
-7: Induce errors by changing block data
+
+![picture](projectimages/007_validatechain.png)
+
+
+11: Print BlockChain
+```
+blockchain.printBlockChain();
+```
+
+![picture](projectimages/008_printblockchain.png)
+
+
+12: Induce errors by changing block data
 ```
 let inducedErrorBlocks = [2,4,7];
 for (var i = 0; i < inducedErrorBlocks.length; i++) {
