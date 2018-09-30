@@ -110,15 +110,21 @@ blockchain.printBlockChain();
 ![picture](projectimages/008_printblockchain.png)
 
 
-12: Induce errors by changing block data
+12: Induce errors by changing block data [This is created intentionaly to check this scenario ]
 ```
-let inducedErrorBlocks = [2,4,7];
-for (var i = 0; i < inducedErrorBlocks.length; i++) {
-  blockchain.chain[inducedErrorBlocks[i]].data='induced chain error';
-}
+addLevelDBData("2", new Block("It's an Induced Error"));
 ```
-8: Validate blockchain. The chain should now fail with blocks 2,4, and 7.
+
+![picture](projectimages/009_incubateerror.png)
+![picture](projectimages/010_wrongblockchain.png)
+
+8: Validate blockchain. The chain should now fail .
 ```
 blockchain.validateChain();
 ```
 
+![picture](projectimages/011_blockchainnotvalidated.png)
+
+
+
+# HAPPY CODING!!
