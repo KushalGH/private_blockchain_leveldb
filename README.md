@@ -36,7 +36,7 @@ To test code:
 ```
 node
 ```
-3: Copy and paste your code into your node session
+3: Copy and paste your code [levelSanbox.js and simpleChain.js] into your node session
 
 4: Instantiate blockchain with blockchain variable. Genesis Block will be created, as we are doing for the first time
 ```
