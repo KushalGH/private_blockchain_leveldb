@@ -2,7 +2,7 @@
 
 Blockchain has the potential to change the way that the world approaches data. Develop Blockchain skills by understanding the data model behind Blockchain by developing your own simplified private blockchain.
 
-###### LICENCE FOR COPYING: License for Private Blockchain project
+###### LICENCE FOR COPYING: [License for Private Blockchain project]
 
 ## Getting Started
 
